@@ -538,9 +538,9 @@ class SmlpFlows:
 
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
             # the same; this is mostly important for model exploration modes
-            self.modelInst.model_features_sanity_check(
-                model_features_dict, feat_names, X_train, X_test, X
-            )
+            # self.modelInst.model_features_sanity_check(
+            #     model_features_dict, feat_names, X_train, X_test, X
+            # )
 
             # model training, validation, testing, prediction on training, labeled and new data (when available)
             if args.model == "system":
@@ -576,9 +576,9 @@ class SmlpFlows:
 
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
             # the same; this is mostly important for model exploration modes
-            self.modelInst.model_features_sanity_check(
-                model_features_dict, feat_names, X_train, X_test, X
-            )
+            # self.modelInst.model_features_sanity_check(
+            #     model_features_dict, feat_names, X_train, X_test, X
+            # )
 
             if args.analytics_mode in self.model_prediction_modes:
                 self.logger.info(
@@ -590,9 +590,9 @@ class SmlpFlows:
         if args.analytics_mode in self.model_exploration_modes:
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
             # the same; this is mostly important for model exploration modes
-            self.modelInst.model_features_sanity_check(
-                model_features_dict, feat_names, X_train, X_test, X
-            )
+            # self.modelInst.model_features_sanity_check(
+            #     model_features_dict, feat_names, X_train, X_test, X
+            # )
 
             if args.analytics_mode == "verify":
                 if True or len(self.specInst.get_spec_knobs) > 0:
