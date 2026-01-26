@@ -55,3 +55,6 @@ obj/table.c.o
 /regr_smlp/data/smlp_s2_tx.csv
 /regr_smlp/master/Test130_*.*
 /regr_smlp/master/Test131_*.*
+
+project
+logs.log
