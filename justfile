@@ -30,13 +30,13 @@ ana:
     -model_name test113_model -save_model_config t -plots f -seed 10 -log_time f \
     -spec ../specs/smlp_toy_basic.spec 
 base:
-    uv run src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir regr_smlp/toy_basic -pref Test113 \
+    uv run src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir project -pref Test113 \
     -mode train -pareto t -resp y1,y2 -feat x1,x2,p1,p2 -model dt_sklearn \
     -dt_sklearn_max_depth 15 -mrmr_pred 0 -epsilon 0.05 -delta_rel 0.01 -save_model t \
     -model_name test113_model -save_model_config t -plots f -seed 10 -log_time f \
     -spec regr_smlp/specs/smlp_toy_basic.spec
 dr:
-    uv run src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir regr_smlp/toy_basic -pref Test113 \
+    uv run src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir project -pref Test113 \
     -mode train -pareto t -resp y1,y2 -feat x1,x2,p1,p2 -model dt_sklearn \
     -dt_sklearn_max_depth 15 -mrmr_pred 0 -epsilon 0.05 -delta_rel 0.01 -save_model t \
     -model_name test113_model -save_model_config t -plots f -seed 10 -log_time f \
