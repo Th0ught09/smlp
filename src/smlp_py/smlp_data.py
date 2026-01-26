@@ -2,17 +2,15 @@
 # This file is part of smlp.
 
 # data processing -- mainly to prepare data for model training
-import os
-import logging
 import numpy as np
 import pandas as pd
 import pickle
 import json
 
-# from mrmr import mrmr_regression
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
+from sklearn.decomposition import PCA
 
 from smlp_py.smlp_plots import response_distribution_plot
 from smlp_py.smlp_utils import (
@@ -21,7 +19,6 @@ from smlp_py.smlp_utils import (
     str_to_bool,
     list_unique_unordered,
     lists_union_order_preserving_without_duplicates,
-    get_response_type,
     cast_type,
     pd_df_col_is_numeric,
 )
@@ -1548,7 +1545,12 @@ class SmlpData:
             X_new = X_new[common_features]
 
         if dimension_reduction:
-            breakpoint()
+            pca = PCA()
+            pca.fit(X_train)
+            cumsum = np.cumsum(pca.explained_variance_ratio_)
+            d = np.argmax(cumsum >= dimension_reduction_amount) + 1
+            pca = PCA(n_components=d)
+            X_train = pca.fit_transform(X_train)
 
         return (
             X,
