@@ -194,7 +194,9 @@ class SmlpConfig:
                 )
 
         parser.add_argument("-dr", "--dimension-reduction", action="store-true")
-        parser.add_argument("-dra", "--dimension-reduction-amount", type=int)
+        parser.add_argument(
+            "-dra", "--dimension-reduction-amount", type=int, default=0.95
+        )
         args = parser.parse_args(argv[1:])
 
         # support for loading parameters from configuration file
