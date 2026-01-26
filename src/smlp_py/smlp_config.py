@@ -193,7 +193,7 @@ class SmlpConfig:
                     "-" + v["abbr"], "--" + p, type=v["type"], help=v["help"]
                 )
 
-        parser.add_argument("-dr", "--dimension-reduction", action="store-true")
+        parser.add_argument("-dr", "--dimension-reduction", action="store_true")
         parser.add_argument(
             "-dra", "--dimension-reduction-amount", type=int, default=0.95
         )
