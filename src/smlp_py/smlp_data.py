@@ -1414,6 +1414,8 @@ class SmlpData:
         resp_to_bool,
         save_model: bool,
         use_model: bool,
+        dimension_reduction: bool,
+        dimension_reduction_amount: int,
     ):
         # scale = not self._get_data_scaler(scaler_type) is None
         keep_feat = keep_feat + self._specInst.get_spec_constraint_vars()
@@ -1544,6 +1546,9 @@ class SmlpData:
             X_train = X_train[common_features]
             X_test = X_test[common_features]
             X_new = X_new[common_features]
+
+        if dimension_reduction:
+            breakpoint()
 
         return (
             X,

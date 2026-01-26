@@ -532,6 +532,8 @@ class SmlpFlows:
                 args.response_to_bool,
                 args.save_model,
                 args.use_model,
+                args.dimension_reduction,
+                args.dimension_reduction_amount,
             )
 
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
