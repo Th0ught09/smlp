@@ -79,7 +79,7 @@
         "-delta_rel",
         "0.01",
         "-save_model",
-        "t,",
+        "t",
         "-model_name",
         "test113_model",
         "-save_model_config",
