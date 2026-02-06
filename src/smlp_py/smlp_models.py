@@ -228,6 +228,7 @@ class SmlpModels:
         test_df: pd.DataFrame,
         feat_df: pd.DataFrame,
     ):
+        return  # temp for testing
         if feat_names is not None:
             if train_df is not None:
                 assert feat_names == train_df.columns.tolist()
@@ -369,8 +370,8 @@ class SmlpModels:
         data_version: str,
     ):
         self._model_logger.info("Reporting prediction results: start")
-        # print('pred\n', pred_df); print('\npred_type', type(pred_df));
-        # print('resp\n', resp_df); print('\nresp_type', type(resp_df));
+        print("pred\n", pred_df)
+        print("resp\n", resp_df)
         pred_colnames = [rn + "_" + algo for rn in resp_names]
         assert pred_df.columns.tolist() == pred_colnames
 
@@ -480,7 +481,7 @@ class SmlpModels:
         model_per_response: bool,
     ):
         self._model_logger.info("Model training: start")
-        # self.model_features_sanity_check(feat_names_dict, None, X_train, X_test, None)
+        self.model_features_sanity_check(feat_names_dict, None, X_train, X_test, None)
 
         if algo == "nn_keras":
             keras_algo = algo[: -len("_keras")]

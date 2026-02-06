@@ -13,8 +13,8 @@ from sklearn.linear_model import LinearRegression
 
 # general
 import numpy as np
-import pandas as pd
-# import pickle
+from loguru import logger
+from time import perf_counter
 
 # SMLP
 from smlp_py.smlp_plots import *
@@ -23,6 +23,9 @@ from smlp_py.smlp_utils import (
     str_to_bool,
     lists_union_order_preserving_without_duplicates,
 )
+
+logger.remove()
+logger.add("project/test.log")
 
 
 # Methods for training and predction, results reproting with SKLEARN package
@@ -539,7 +542,10 @@ class ModelSklearn:
         hparam_dict_local = self._hparam_dict_global_to_local(algo, hparam_dict)
         hparam_dict_local["random_state"] = seed
         regr = DecisionTreeRegressor(**hparam_dict_local)
+        time_before = perf_counter()
         model = regr.fit(X_train, y_train, sample_weight=weights)
+        time_after = perf_counter()
+        logger.info("elapsed_time: %f" % (time_after - time_before))
         assert regr == model
 
         # print text representation of the tree model

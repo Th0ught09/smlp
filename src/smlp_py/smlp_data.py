@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 import pickle
 import json
+from loguru import logger
 
+# from mrmr import mrmr_regression
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
@@ -19,6 +21,7 @@ from smlp_py.smlp_utils import (
     str_to_bool,
     list_unique_unordered,
     lists_union_order_preserving_without_duplicates,
+    get_response_type,
     cast_type,
     pd_df_col_is_numeric,
 )
@@ -28,6 +31,9 @@ from smlp_py.smlp_mrmr import SmlpMrmr
 from smlp_py.smlp_constants import *
 from smlp_py.smlp_discretize import SmlpDiscretize
 # from smlp_py.smlp_correlations import SmlpCorrelations
+
+logger.remove()
+logger.add("project/test.log")
 
 
 # Methods for data processing, traing vs test splitting, handling responses vs features, and more.
@@ -1530,6 +1536,8 @@ class SmlpData:
                 mm_scaler_resp,
                 levels_dict,
                 model_features_dict,
+                dimension_reduction,
+                dimension_reduction_amount,
             )
         else:
             X_new, y_new = None, None
@@ -1543,14 +1551,16 @@ class SmlpData:
             X_train = X_train[common_features]
             X_test = X_test[common_features]
             X_new = X_new[common_features]
-
         if dimension_reduction:
+            logger.info(f"Variance preserved: {dimension_reduction_amount}")
             pca = PCA()
             pca.fit(X_train)
             cumsum = np.cumsum(pca.explained_variance_ratio_)
             d = np.argmax(cumsum >= dimension_reduction_amount) + 1
             pca = PCA(n_components=d)
             X_train = pca.fit_transform(X_train)
+            X = pca.fit_transform(X)
+            X_test = pca.fit_transform(X_test)
 
         return (
             X,
