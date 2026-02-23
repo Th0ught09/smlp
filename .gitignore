@@ -61,3 +61,4 @@ obj/table.c.o
 project
 logs.log
 .idea
+bench
