@@ -1536,8 +1536,6 @@ class SmlpData:
                 mm_scaler_resp,
                 levels_dict,
                 model_features_dict,
-                dimension_reduction,
-                dimension_reduction_amount,
             )
         else:
             X_new, y_new = None, None

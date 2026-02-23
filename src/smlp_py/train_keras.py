@@ -431,6 +431,10 @@ class ModelKeras:
 
         # Initialize the Functional model
         model = keras.Model(inputs=inputs, outputs=outputs)
+        print("Output names :", model.output_names)  # list of output layer names
+        print("Number of outputs :", len(model.outputs))
+        for i, out in enumerate(model.outputs):
+            print(f"  Output {i} shape :", out.shape)
         model.compile(optimizer=optimizer, loss=loss_function, metrics=metrics)
         return model
 
@@ -623,23 +627,33 @@ class ModelKeras:
                 batch_size=batch_size,
             )
         else:
-            """
             # this code is for debugging only
-            #print('sample_weights_dict', sample_weights_dict)
-            sample_weights_df = pd.DataFrame.from_dict(sample_weights_dict); #print('sample_weights_df\n', sample_weights_df)
-            sample_weights_vect = None if sample_weights_dict is None else np.array(list(sample_weights_df.agg('mean', axis=1))); #print('sample_weights_vect', sample_weights_vect)
-            #for k in sample_weights_dict.keys():
+            # print('sample_weights_dict', sample_weights_dict)
+            sample_weights_df = pd.DataFrame.from_dict(
+                sample_weights_dict
+            )  # print('sample_weights_df\n', sample_weights_df)
+            sample_weights_vect = (
+                None
+                if sample_weights_dict is None
+                else np.array(list(sample_weights_df.agg("mean", axis=1)))
+            )  # print('sample_weights_vect', sample_weights_vect)
+            # for k in sample_weights_dict.keys():
             #    sample_weights_dict[k] = sample_weights_vect
             # log model details
-            self._log_model_summary(model, epochs, batch_size, sample_weights_vect, callbacks)
-            history = model.fit(X_train, y_train,
-                                epochs=epochs,
-                                validation_data=(X_test, y_test),
-                                #steps_per_epoch=10,
-                                sample_weight=sample_weights_vect,
-                                callbacks=callbacks, #[c for c in (checkpointer,earlyStopping,rlrop) if c is not None],
-                                batch_size=batch_size)
-            """
+            self._log_model_summary(
+                model, epochs, batch_size, sample_weights_vect, callbacks
+            )
+            print(sample_weights_dict)
+            history = model.fit(
+                X_train,
+                y_train,
+                epochs=epochs,
+                validation_data=(X_test, y_test),
+                # steps_per_epoch=10,
+                sample_weight=sample_weights_vect,
+                callbacks=callbacks,  # [c for c in (checkpointer,earlyStopping,rlrop) if c is not None],
+                batch_size=batch_size,
+            )
             # log model details
             self._log_model_summary(
                 model, epochs, batch_size, sample_weights_dict, callbacks
@@ -1459,4 +1473,3 @@ class ModelKeras:
             )
         self._keras_logger.info("keras_main: end")
         return model
-
