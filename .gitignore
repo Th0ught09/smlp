@@ -34,6 +34,8 @@ bin/check-data-cmd
 
 # SMLP bench
 /bench/cec22/.ipynb_checkpoints/cec-2022-benchmark-checkpoint.ipynb
+/bench/*/**
+projects
 
 # regeression
 /regr/*
@@ -58,3 +60,4 @@ obj/table.c.o
 
 project
 logs.log
+.idea
