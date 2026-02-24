@@ -2,6 +2,13 @@
 # This file is part of smlp.
 
 import os
+import cProfile
+import pstats
+from time import perf_counter
+from loguru import logger
+
+logger.remove()
+logger.add("project/test.log")
 
 # os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0" # edded because of warning:
 os.unsetenv("TF_ENABLE_ONEDNN_OPTS")
@@ -1356,6 +1363,7 @@ class ModelKeras:
                 metrics,
             )
 
+        start = perf_counter()
         history = self._nn_train(
             model,
             epochs,
@@ -1369,6 +1377,8 @@ class ModelKeras:
             weights_coef,
             sequential_api,
         )
+        end = perf_counter()
+        logger.info(f"Time used: {end - start:8.4f}")
 
         # plot how training iterations improve error/model precision
         self._report_training_regression(
@@ -1433,6 +1443,7 @@ class ModelKeras:
         seed: float,
         weights_coef: dict,
         model_per_response: bool,
+        weights_drop: int,
     ):
         self._keras_logger.info("keras_main: start")
         # print('resp_names', resp_names)
@@ -1472,4 +1483,13 @@ class ModelKeras:
                 model_per_response,
             )
         self._keras_logger.info("keras_main: end")
+        self.prune_weights(model)
         return model
+
+    def prune_weights(self, model, threshold=0.01):
+        for layer in model.layers:
+            weights = layer.get_weights()  # Get current weights
+            if len(weights) > 0:
+                # Prune weights using magnitude
+                weights[0] = np.where(np.abs(weights[0]) < threshold, 0, weights[0])
+                layer.set_weights(weights)  # Set pruned weights

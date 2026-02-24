@@ -479,6 +479,7 @@ class SmlpModels:
         sample_weights_exp: float,
         sample_weights_int: float,
         model_per_response: bool,
+        weights_drop,
     ):
         self._model_logger.info("Model training: start")
         self.model_features_sanity_check(feat_names_dict, None, X_train, X_test, None)
@@ -504,6 +505,7 @@ class SmlpModels:
                 seed,
                 sample_weights_dict,
                 model_per_response,
+                weights_drop,
             )
         elif algo in ["dt_sklearn", "et_sklearn", "rf_sklearn", "poly_sklearn"]:
             sklearn_algo = algo[: -len("_sklearn")]
@@ -651,6 +653,7 @@ class SmlpModels:
         use_model: bool,
         model_per_response: bool,
         model_rerun_config: dict,
+        weights_drop,
     ):
         if not y_train is None:
             assert resp_names == y_train.columns.tolist()
@@ -725,6 +728,7 @@ class SmlpModels:
                 sample_weights_exp,
                 sample_weights_int,
                 model_per_response,
+                weights_drop,
             )
 
             if save_model:

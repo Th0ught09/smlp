@@ -18,7 +18,8 @@ from smlp_py.smlp_query import SmlpQuery
 from smlp_py.smlp_optimize import SmlpOptimize
 from smlp_py.smlp_refine import SmlpRefine
 from smlp_py.smlp_correlations import SmlpCorrelations
-
+import cProfile
+import pstats
 # Combining simulation results, optimization, uncertainty analysis, sequential experiments
 # https://foqus.readthedocs.io/en/3.1.0/chapt_intro/index.html
 
@@ -546,6 +547,8 @@ class SmlpFlows:
             if args.model == "system":
                 model = syst_expr_dict
             else:
+                profiler = cProfile.Profile()
+                profiler.enable()
                 model = self.modelInst.build_models(
                     args.model,
                     X,
@@ -572,8 +575,19 @@ class SmlpFlows:
                     args.use_model,
                     args.model_per_response,
                     self.configInst.model_rerun_config,
+                    args.wights_drop,
                 )
+                profiler.disable()
+                stats = pstats.Stats(profiler)
 
+                # Sort by different metrics
+                # stats.sort_stats("cumulative").print_stats(
+                #     10
+                # )  # Top 10 functions by cumulative time
+                # stats.sort_stats("calls").print_stats(
+                #     10
+                # )  # Top 10 functions by call count
+                # stats.sort_stats("time").print_stats(10)
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
             # the same; this is mostly important for model exploration modes
             # self.modelInst.model_features_sanity_check(

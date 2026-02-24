@@ -197,6 +197,7 @@ class SmlpConfig:
         parser.add_argument(
             "-dra", "--dimension-reduction-amount", type=int, default=0.95
         )
+        parser.add_argument("-wg", "--weights-drop", type=int, default=0)
         args = parser.parse_args(argv[1:])
 
         # support for loading parameters from configuration file
