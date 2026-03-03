@@ -575,7 +575,7 @@ class SmlpFlows:
                     args.use_model,
                     args.model_per_response,
                     self.configInst.model_rerun_config,
-                    args.wights_drop,
+                    args.weights_drop,
                 )
                 profiler.disable()
                 stats = pstats.Stats(profiler)

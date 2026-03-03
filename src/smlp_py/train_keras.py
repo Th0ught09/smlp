@@ -139,6 +139,9 @@ class ModelKeras:
         self._TUNER_EARLY_STOPPING_PATIENCE = 50
         self._TUNER_MODEL_SIZE_VS_ACCURACY_TRADEOFF = True
 
+        # Weight dropping parameters
+        self._DEF_WEIGHTS_DROP = 0  # Default: no weights dropped (percentage 0-100)
+
         if list(map(int, tf.version.VERSION.split("."))) < [1]:
             assert False
         elif list(map(int, tf.version.VERSION.split("."))) < [2]:
@@ -285,6 +288,16 @@ class ModelKeras:
                 "help": "Comma separated list of NN Keras loss functions, to be used by Keras tuner. "
                 + "It can be a subset of loss functions mse, mae, mape, msle, huber, logcosh. "
                 + "[default: {}]".format(str(self._DEF_LOSS_FUNCTIONS_GRID)),
+            },
+            "weights_drop": {
+                "abbr": "weights_drop",
+                "default": self._DEF_WEIGHTS_DROP,
+                "type": int,
+                "help": "Percentage (0-100) of weights with smallest magnitude to drop (set to zero) "
+                + "from the trained NN model. This is applied after training is complete and uses a "
+                + "magnitude-based pruning strategy. [default: {}]".format(
+                    self._DEF_WEIGHTS_DROP
+                ),
             },
         }
 
@@ -678,6 +691,8 @@ class ModelKeras:
             #'''
         if weights_precision is not None:
             self.round_model_weights(model, int(weights_precision))
+            with open("project/plot_data.tsv", "a") as f:
+                f.write(f"{weights_precision}\t")
         return history
 
     def _report_training_regression(
@@ -1159,6 +1174,8 @@ class ModelKeras:
         if weights_precision is not None:
             assert weights_precision >= 0
             self.round_model_weights(best_model, int(weights_precision))
+            with open("project/plot_data.tsv", "a") as f:
+                f.write(f"{weights_precision}\n")
         return best_model
 
     # This function extracts individual parameter values from hyperparameter values
@@ -1363,7 +1380,7 @@ class ModelKeras:
                 metrics,
             )
 
-        start = perf_counter()
+        # start = perf_counter()
         history = self._nn_train(
             model,
             epochs,
@@ -1377,9 +1394,13 @@ class ModelKeras:
             weights_coef,
             sequential_api,
         )
-        end = perf_counter()
-        logger.info(f"Time used: {end - start:8.4f}")
+        # train_end = perf_counter()
+        # train_time = train_end - start
 
+        # Log training time separately
+        # self._keras_logger.info(f"NN training time: {train_time:.4f}s")
+        # with open("project/plot_data.tsv", "a") as f:
+        #     f.write(f"{train_time:.5f}\n")
         # plot how training iterations improve error/model precision
         self._report_training_regression(
             history,
@@ -1445,6 +1466,8 @@ class ModelKeras:
         model_per_response: bool,
         weights_drop: int,
     ):
+        smlp_processing_start = perf_counter()  # ← START: SMLP processing time
+
         self._keras_logger.info("keras_main: start")
         # print('resp_names', resp_names)
         # print('X_train', X_train.shape, 'X_test', X_test.shape, 'y_train', y_train.shape, 'y_test', y_test.shape)
@@ -1482,11 +1505,126 @@ class ModelKeras:
                 weights_coef,
                 model_per_response,
             )
+
         self._keras_logger.info("keras_main: end")
-        self.prune_weights(model)
+
+        # Log SMLP processing time (before weight dropping which is post-processing)
+        smlp_processing_time = perf_counter() - smlp_processing_start
+        self._keras_logger.info(f"SMLP processing time: {smlp_processing_time:.4f}s")
+        with open("project/plot_data.tsv", "a") as f:
+            f.write(f"{smlp_processing_time:8.5f}\t")
+
+        # Apply weight dropping if specified with timing metrics (post-processing)
+        if weights_drop is not None and weights_drop > 0:
+            with open("project/plot_data.tsv", "a") as f:
+                f.write(f"{weights_drop}\n")
+            self._keras_logger.info(f"Applying weight dropping: {weights_drop}%")
+            if isinstance(model, dict):
+                # Multiple models per response
+                for resp_name, resp_model in model.items():
+                    self._keras_logger.info(
+                        f"  Dropping weights for response: {resp_name}"
+                    )
+                    self.drop_weights(resp_model, weights_drop)
+            else:
+                # Single model for all responses
+                self.drop_weights(model, weights_drop)
+        else:
+            with open("project/plot_data.tsv", "a") as f:
+                f.write("\n")
         return model
 
+    def drop_weights(self, model, drop_percentage: int):
+        """
+        Drop (set to zero) the smallest magnitude weights from the trained neural network model.
+
+        Args:
+            model: Keras model to prune
+            drop_percentage: Percentage (0-100) of weights to drop based on magnitude
+
+        This implementation uses magnitude-based pruning, where weights are ranked by their
+        absolute values and the smallest ones are set to zero. This is useful for:
+        - Model compression
+        - Reducing model complexity
+        - Improving generalization
+        - Creating sparse models
+        """
+        if drop_percentage < 0 or drop_percentage > 100:
+            self._keras_logger.warning(
+                f"Invalid drop_percentage {drop_percentage}. Must be between 0-100. Skipping weight dropping."
+            )
+            return
+
+        if drop_percentage == 0:
+            self._keras_logger.info(
+                "drop_weights: drop_percentage is 0, no weights will be dropped"
+            )
+            return
+
+        # Collect all weights from all layers
+        all_weights = []
+        layer_weight_shapes = []  # Track which weights belong to which layer
+
+        for layer in model.layers:
+            weights = layer.get_weights()
+            if len(weights) > 0:
+                # For each layer, store the kernel (weights) matrix
+                if len(weights) > 0:  # kernel
+                    kernel = weights[0]
+                    all_weights.append(kernel.flatten())
+                    layer_weight_shapes.append((layer.name, 0, kernel.shape))
+
+        if len(all_weights) == 0:
+            self._keras_logger.info("drop_weights: No weights found to drop")
+            return
+
+        # Concatenate all weights and find the threshold
+        all_weights_flat = np.concatenate(all_weights)
+        abs_weights = np.abs(all_weights_flat)
+
+        # Calculate the threshold based on drop percentage
+        # Weights below this threshold will be dropped
+        threshold = np.percentile(abs_weights, drop_percentage)
+
+        self._keras_logger.info(
+            f"drop_weights: Dropping {drop_percentage}% of weights (threshold={threshold:.6f})"
+        )
+
+        dropped_count = 0
+        total_count = len(all_weights_flat)
+
+        # Apply the pruning to each layer
+        for layer in model.layers:
+            weights = layer.get_weights()
+            if len(weights) > 0:
+                # Prune weights using magnitude-based threshold
+                kernel = weights[0].copy()
+                original_count = kernel.size
+
+                # Set weights below threshold to zero
+                kernel = np.where(np.abs(kernel) < threshold, 0, kernel)
+                dropped_in_layer = original_count - np.count_nonzero(kernel)
+                dropped_count += dropped_in_layer
+
+                # Update the weights
+                weights[0] = kernel
+                layer.set_weights(weights)
+
+                if dropped_in_layer > 0:
+                    self._keras_logger.info(
+                        f"  Layer '{layer.name}': dropped {dropped_in_layer}/{original_count} weights "
+                        + f"({100 * dropped_in_layer / original_count:.2f}%)"
+                    )
+
+        self._keras_logger.info(
+            f"drop_weights: Total dropped {dropped_count}/{total_count} weights "
+            + f"({100 * dropped_count / total_count:.2f}%)"
+        )
+
     def prune_weights(self, model, threshold=0.01):
+        """Legacy pruning method for backward compatibility.
+        Uses a fixed threshold instead of percentage-based dropping.
+        """
         for layer in model.layers:
             weights = layer.get_weights()  # Get current weights
             if len(weights) > 0:
