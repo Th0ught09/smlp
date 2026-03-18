@@ -67,6 +67,36 @@ works:
     -pref Test4 -mode predict -resp y2 -feat x,p1,p2 -model nn_keras -nn_keras_weights_precision 2 \
     -save_model_config f -mrmr_pred 0 -plots f -pred_plots f -resp_plots f -seed 10 \
     -log_time f -nn_keras_epochs 20 -nn_keras_seq_api f -new_dat "../data/smlp_toy_num_resp_mult_pred_labeled.csv"
+
+
+works-base-resp dim wg pr:
+    ./src/run_smlp.py -data "regr_smlp/data/smlp_toy_num_resp_mult.csv" -out_dir ./project \
+    -pref Test113 -mode predict -resp y1,y2 -feat categ,x,p1,p2 -model nn_keras -nn_keras_weights_precision 2 \
+    -save_model_config t -mrmr_pred 0 -plots f -pred_plots f -resp_plots f -seed 10 -split 0.5 \
+    -log_time f -nn_keras_epochs 20 -nn_keras_seq_api f -new_dat "regr_smlp/data/smlp_toy_num_resp_mult.csv" \
+    -dr -dra {{dim}} -wg {{wg}} --nn_keras_weights_precision {{pr}} -split 0.5
+
+works-base dim wg pr:
+    ./src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir ./project \
+    -pref Test113 -mode predict -resp y1,y2 -feat x1,x2,p1,p2 -model nn_keras -nn_keras_weights_precision 2 \
+    -save_model_config t -mrmr_pred 0 -plots f -pred_plots f -resp_plots f -seed 10 -split 0.5 \
+    -log_time f -nn_keras_epochs 20 -nn_keras_seq_api f -new_dat "regr_smlp/data/smlp_toy_basic" \
+    -dr -dra {{dim}} -wg {{wg}} --nn_keras_weights_precision {{pr}} -split 0.5
+
+optimize:
+    ./src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir ./project -pref Test113 \
+    -mode optimize -pareto t -use_model t -resp y1,y2 -feat x1,x2,p1,p2 -save_model f \
+     -mrmr_pred 0 -plots f -seed 10 -model_name  Test113_smlp_toy_num_resp_mult \
+    -log_time f -spec regr_smlp/specs/smlp_toy_system_stable_constant_synth_feasible.spec -model nn_keras \
+    -spec regr_smlp/specs/smlp_toy_basic.spec -split 0.5
+
+[working-directory: 'regr_smlp/code']
+works-dra amount:
+    ../../src/run_smlp.py -data "../data/smlp_toy_num_resp_mult.csv" -out_dir ./ \
+    -pref Test4 -mode predict -resp y2 -feat x,p1,p2 -model nn_keras -nn_keras_weights_precision 2 \
+    -save_model_config f -mrmr_pred 0 -plots f -pred_plots f -resp_plots f -seed 10 \
+    -log_time f -nn_keras_epochs 20 -nn_keras_seq_api f -new_dat "../data/smlp_toy_num_resp_mult_pred_labeled.csv" -dra {{amount}}
+
 [working-directory: 'regr_smlp/code']
 works-log:
     ../../src/run_smlp.py -data "../data/smlp_toy_num_resp_mult.csv" -out_dir ./ \

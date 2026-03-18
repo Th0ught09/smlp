@@ -674,21 +674,6 @@ class ModelKeras:
                 callbacks=callbacks,  # [c for c in (checkpointer,earlyStopping,rlrop) if c is not None],
                 batch_size=batch_size,
             )
-            # log model details
-            self._log_model_summary(
-                model, epochs, batch_size, sample_weights_dict, callbacks
-            )
-            history = model.fit(
-                X_train,
-                y_train,
-                epochs=epochs,
-                validation_data=(X_test, y_test),
-                # steps_per_epoch=10,
-                sample_weight=sample_weights_dict,
-                callbacks=callbacks,
-                batch_size=batch_size,
-            )
-            #'''
         if weights_precision is not None:
             self.round_model_weights(model, int(weights_precision))
             with open("project/plot_data.tsv", "a") as f:
