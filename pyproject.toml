@@ -9,7 +9,7 @@ dependencies = [
     "gmp>=0.0.17",
     "icecream>=2.1.8",
     "jenkspy>=0.4.1",
-    "keras>=3.11.3",
+    "keras<3",
     "keras-tuner>=1.4.7",
     "loguru>=0.7.3",
     "meson>=1.9.1",
@@ -25,6 +25,6 @@ dependencies = [
     "scikit-learn>=1.4.2",
     "seaborn>=0.13.2",
     "setuptools>=80.9.0",
-    "tensorflow>=2.18.1",
+    "tensorflow>=2.13<2.16",
     "wheel>=0.45.1",
 ]
