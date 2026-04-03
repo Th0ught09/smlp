@@ -1160,7 +1160,7 @@ class ModelKeras:
             assert weights_precision >= 0
             self.round_model_weights(best_model, int(weights_precision))
             with open("project/plot_data.tsv", "a") as f:
-                f.write(f"{weights_precision}\n")
+                f.write(f"{weights_precision}\t")
         return best_model
 
     # This function extracts individual parameter values from hyperparameter values
@@ -1451,7 +1451,7 @@ class ModelKeras:
         model_per_response: bool,
         weights_drop: int,
     ):
-        smlp_processing_start = perf_counter()  # ← START: SMLP processing time
+        # smlp_processing_start = perf_counter()  # ← START: SMLP processing time
 
         self._keras_logger.info("keras_main: start")
         # print('resp_names', resp_names)
@@ -1494,10 +1494,10 @@ class ModelKeras:
         self._keras_logger.info("keras_main: end")
 
         # Log SMLP processing time (before weight dropping which is post-processing)
-        smlp_processing_time = perf_counter() - smlp_processing_start
-        self._keras_logger.info(f"SMLP processing time: {smlp_processing_time:.4f}s")
-        with open("project/plot_data.tsv", "a") as f:
-            f.write(f"{smlp_processing_time:8.5f}\t")
+        # smlp_processing_time = perf_counter() - smlp_processing_start
+        # self._keras_logger.info(f"SMLP processing time: {smlp_processing_time:.4f}s")
+        # with open("project/plot_data.tsv", "a") as f:
+        #     f.write(f"{smlp_processing_time:8.5f}\t")
 
         # Apply weight dropping if specified with timing metrics (post-processing)
         if weights_drop is not None and weights_drop > 0:

@@ -1654,8 +1654,9 @@ class NNKerasTerms:  # (SmlpTerms):
         # print('node_weights', node_weights.shape, type(node_weights), '\n', node_weights)
         # print('node_bias', node_bias.shape, type(node_bias), '\n', node_bias);
         print("weights: ", node_weights)
+        print("last_layer_terms: ", last_layer_terms)
         layer_term = None
-        for i, t in enumerate(last_layer_terms):
+        for i, t in enumerate(node_weights):
             if i == 0:
                 layer_term = last_layer_terms[0] * smlp.Cnst(float(node_weights[0]))
             else:

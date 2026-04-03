@@ -30,9 +30,6 @@
         export BOOST_LIBRARYDIR=${pkgs.lib.getLib pkgs.python311Packages.boost}/lib
 
         export LD_LIBRARY_PATH="${pkgs.lib.getLib pkgs.gmp}/lib:/home/kirkm/kjson/lib:${pkgs.lib.getLib pkgs.z3}/lib:${pkgs.lib.getLib pkgs.hdf5}/lib"
-
-
-        fish
       '';
     };
   };
