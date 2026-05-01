@@ -5,15 +5,16 @@
 #
 
 # coding: utf-8
-
-
-import sys, os
+import sys
 from smlp_py.smlp_flows import SmlpFlows
+
+sys.set_int_max_str_digits(1000000)
+
 
 def main(argv):
     smlpInst = SmlpFlows(argv)
     smlpInst.smlp_flow()
 
+
 if __name__ == "__main__":
     main(sys.argv)
-    

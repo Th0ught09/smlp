@@ -263,8 +263,8 @@ class SmlpOptimize:
         objv_names: list[str],
         objv_exprs: list[str],
     ):
-        print(X, y)
-        
+        # print(X, y)
+
         # Handle case where X and y are None (when using saved model without training data)
         if X is None or y is None:
             self._opt_logger.warning(
@@ -280,7 +280,7 @@ class SmlpOptimize:
                     "max": 1e6,
                 }
             return objv_bounds_dict
-        
+
         df_resp_feat = pd.concat(
             [X, y], axis=1
         )  # print('df_resp_feat\n', df_resp_feat)
@@ -1784,6 +1784,8 @@ class SmlpOptimize:
             scale_objectives,
         )
 
+        with open("project/plot_data.tsv", "a") as f:
+            f.write("\n")
         self._opt_logger.info("Pareto optimization: End")
         return s
 

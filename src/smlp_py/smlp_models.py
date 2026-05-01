@@ -409,6 +409,7 @@ class SmlpModels:
             precisions_df = pd.DataFrame(
                 data={"response": resp_names, "msqe": msqe_vec, "r2_score": r2_vec}
             )
+            print(f"KIRK CHECK {msqe_vec}")
             self._model_logger.info(
                 "Saving prediction precisions into file: \n"
                 + str(self.prediction_precisions_filename(data_version))

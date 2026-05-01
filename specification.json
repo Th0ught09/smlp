@@ -2,16 +2,16 @@
   "version": "1.2",
   "variables": [
     { "label": "o0", "interface": "output", "type": "real" },
-    { "label": "o1", "interface": "input", "type": "real" },
+    { "label": "o1", "interface": "output", "type": "real" },
     { "label": "CH", "interface": "input", "type": "int" },
     { "label": "RANK", "interface": "input", "type": "int" },
     { "label": "Byte", "interface": "input", "type": "int" },
-    { "label": "p0", "interface": "knob", "type": "float" },
-    { "label": "p1", "interface": "knob", "type": "float" },
-    { "label": "p2", "interface": "knob", "type": "float" },
-    { "label": "p3", "interface": "knob", "type": "float" },
-    { "label": "p4", "interface": "knob", "type": "float" },
-    { "label": "p5", "interface": "knob", "type": "float" }
+    { "label": "p0", "interface": "input", "type": "int" },
+    { "label": "p1", "interface": "input", "type": "int" },
+    { "label": "p2", "interface": "input", "type": "int" },
+    { "label": "p3", "interface": "input", "type": "int" },
+    { "label": "p4", "interface": "input", "type": "int" },
+    { "label": "p5", "interface": "input", "type": "int" }
   ],
   "alpha": "p2<5 and p1 > 2",
   "assertions": {
@@ -19,7 +19,6 @@
     "assert3": "p4>0"
   },
   "objectives": {
-    "objective1": "(p2+p3)/2",
-    "objective2": "p5"
+    "objective1": "p2"
   }
 }

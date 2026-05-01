@@ -8,13 +8,8 @@
     {"label":"p1", "interface":"knob", "type":"real", "range":[0,10], "rad-rel":0.1, "grid":[2,4,7]},
     {"label":"p2", "interface":"knob", "type":"int", "range":[3,7], "rad-abs":0.2}
   ],
-  "alpha": "p2<5 and x1==10 and x2<12",
   "assertions": {
-    "assert1": "(y2**3+p2)/2>6",
-    "assert3": "y2>0"
   },
   "objectives": {
-    "objective1": "(y1+y2)/2",
-    "objective2": "y1"
   }
 }

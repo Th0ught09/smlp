@@ -1049,6 +1049,9 @@ class SmlpQuery:
                 elif self._modelTermsInst.solver_status_unsat(
                     ce
                 ):  # isinstance(ce, smlp.unsat):
+                    smlp_processing_time = perf_counter() - smlp_processing_start
+                    with open("project/plot_data.tsv", "a") as f:
+                        f.write(f"{smlp_processing_time:8.5f},")
                     print("candidate stable -- return candidate")
                     self._query_logger.info(
                         "Query completed with result: STABLE_SAT (satisfiable)"
@@ -1076,10 +1079,6 @@ class SmlpQuery:
                             "witness": ca_model,
                             "feasible": feasible,
                         }
-                smlp_processing_time = perf_counter() - smlp_processing_start
-                with open("project/plot_data.tsv", "a") as f:
-                    f.write(f"{smlp_processing_time:8.5f}\n")
-                break
             elif self._modelTermsInst.solver_status_unsat(
                 ca
             ):  # isinstance(ca, smlp.unsat):
@@ -1090,6 +1089,9 @@ class SmlpQuery:
                     feasible = False
                 # print('candidate does not exist -- query unsuccessful')
                 # print('query unsuccessful: witness does not exist (query is unsat)')
+                # breakpoint()
+                # with open("project/plot_data.tsv", "a") as f:
+                #     f.write("0\n")
                 return {"query_status": "UNSAT", "witness": None, "feasible": feasible}
             elif self._modelTermsInst.solver_status_unknown(
                 ca

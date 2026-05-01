@@ -676,8 +676,8 @@ class ModelKeras:
             )
         if weights_precision is not None:
             self.round_model_weights(model, int(weights_precision))
-            with open("project/plot_data.tsv", "a") as f:
-                f.write(f"{weights_precision}\t")
+            # with open("project/plot_data.tsv", "a") as f:
+            #     f.write(f"{weights_precision}\t")
         return history
 
     def _report_training_regression(
@@ -1159,8 +1159,8 @@ class ModelKeras:
         if weights_precision is not None:
             assert weights_precision >= 0
             self.round_model_weights(best_model, int(weights_precision))
-            with open("project/plot_data.tsv", "a") as f:
-                f.write(f"{weights_precision}\t")
+            # with open("project/plot_data.tsv", "a") as f:
+            # f.write(f"{weights_precision}\t")
         return best_model
 
     # This function extracts individual parameter values from hyperparameter values
@@ -1500,9 +1500,9 @@ class ModelKeras:
         #     f.write(f"{smlp_processing_time:8.5f}\t")
 
         # Apply weight dropping if specified with timing metrics (post-processing)
+        # with open("project/plot_data.tsv", "a") as f:
+        #     f.write(f"{weights_drop}\t")
         if weights_drop is not None and weights_drop > 0:
-            with open("project/plot_data.tsv", "a") as f:
-                f.write(f"{weights_drop}\n")
             self._keras_logger.info(f"Applying weight dropping: {weights_drop}%")
             if isinstance(model, dict):
                 # Multiple models per response

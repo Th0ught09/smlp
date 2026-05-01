@@ -1551,8 +1551,8 @@ class SmlpData:
             X_new = X_new[common_features]
         if dimension_reduction:
             logger.info(f"Variance preserved: {dimension_reduction_amount}")
-            with open("project/plot_data.tsv", "a") as f:
-                f.write(f"{dimension_reduction_amount}\t")
+            # with open("project/plot_data.tsv", "a") as f:
+            #     f.write(f"{dimension_reduction_amount}\t")
             pca = PCA()
             pca.fit(X_train)
             cumsum = np.cumsum(pca.explained_variance_ratio_)
