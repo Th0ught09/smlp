@@ -156,6 +156,9 @@
 			"rad-rel": 0.1
 		}
 	],
+    "assertions":{
+            "assert1": "y1 > y2"
+        }
 	"objectives": {
 	    "objv0": "o0",
 	    "objv1": "o1"

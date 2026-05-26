@@ -375,14 +375,14 @@ class SmlpModels:
         pred_colnames = [rn + "_" + algo for rn in resp_names]
         assert pred_df.columns.tolist() == pred_colnames
 
-        orig_resp_df = resp_df.copy() if not resp_df is None else None
+        orig_resp_df = resp_df.copy()
         orig_pred_df = pred_df.copy()
         # print('orig_pred_df\n', orig_pred_df); print('pred_df\n', pred_df);
 
-        if not mm_scaler_resp is None:
-            orig_pred_df[:] = mm_scaler_resp.inverse_transform(pred_df)
-            if not resp_df is None:
-                orig_resp_df[:] = mm_scaler_resp.inverse_transform(resp_df)
+        # if not mm_scaler_resp is None:
+        #     orig_pred_df[:] = mm_scaler_resp.inverse_transform(pred_df)
+        #     if not resp_df is None:
+        #         orig_resp_df[:] = mm_scaler_resp.inverse_transform(resp_df)
         # print('orig_resp_df\n', orig_resp_df); print('orig_pred_df\n', orig_pred_df)
         predictions_df = pd.concat([orig_resp_df, orig_pred_df], axis=1)
         self._model_logger.info(
@@ -395,20 +395,29 @@ class SmlpModels:
         # print('predictions_df\n', predictions_df)
 
         # generate prediction precisions table / file
+        print(orig_resp_df)
+        print(orig_pred_df)
+
         if not resp_df is None:
             r2_vec = [
-                r2_score(orig_resp_df[resp_names[i]], orig_pred_df[pred_colnames[i]])
+                r2_score(
+                    orig_resp_df[resp_names[i]],
+                    orig_pred_df[pred_colnames[i]],
+                    multioutput="uniform_average",
+                )
                 for i in range(len(resp_names))
             ]
             msqe_vec = [
                 mean_squared_error(
-                    orig_resp_df[resp_names[i]], orig_pred_df[pred_colnames[i]]
+                    orig_resp_df[resp_names[i]],
+                    orig_pred_df[pred_colnames[i]],
                 )
                 for i in range(len(resp_names))
             ]
             precisions_df = pd.DataFrame(
                 data={"response": resp_names, "msqe": msqe_vec, "r2_score": r2_vec}
             )
+            print(r2_vec)
             print(f"KIRK CHECK {msqe_vec}")
             self._model_logger.info(
                 "Saving prediction precisions into file: \n"
@@ -448,6 +457,10 @@ class SmlpModels:
         assert isinstance(orig_resp_df, pd.DataFrame) or resp_df is None
 
         self._model_logger.info("Reporting prediction results: end")
+        with open("project/plot_data.tsv", "a") as f:
+            f.write(
+                f"{mean_squared_error(orig_resp_df, orig_pred_df)}\t{r2_score(orig_resp_df, orig_pred_df)}\t"
+            )
 
     # extract hyperparameters required for training model with slgorithm algo
     # from args after it has been populated with command-line and default values.
@@ -655,6 +668,7 @@ class SmlpModels:
         model_per_response: bool,
         model_rerun_config: dict,
         weights_drop,
+        rounding,
     ):
         if not y_train is None:
             assert resp_names == y_train.columns.tolist()
@@ -732,36 +746,41 @@ class SmlpModels:
                 weights_drop,
             )
 
-            if save_model:
-                self._save_model_rerun_config(model_rerun_config)
-                if model_lib == "sklearn":
-                    self._model_logger.info(
-                        "Seving model in file " + str(self.model_filename(algo, ".pkl"))
-                    )
-                    pickle.dump(model, open(self.model_filename(algo, ".pkl"), "wb"))
-                elif model_lib == "caret":
-                    # when saving a model, save_model() adds '.pkl' suffic to the filename supplied to it;
-                    # we therefore use '' instead of 'pkl' when computing model_filename
-                    # argument model is actually a dict with response names as keys and the correponding
-                    # models as values, thus we save/dump multiple models, one for each response:
+        weights = model.get_weights()
+        rounded_weights = []
+        for w in weights:
+            rounded_weights.append(np.round(w, decimals=rounding))
+
+        model.set_weights(rounded_weights)
+
+        if save_model:
+            self._save_model_rerun_config(model_rerun_config)
+            if model_lib == "sklearn":
+                self._model_logger.info(
+                    "Seving model in file " + str(self.model_filename(algo, ".pkl"))
+                )
+                pickle.dump(model, open(self.model_filename(algo, ".pkl"), "wb"))
+            elif model_lib == "caret":
+                # when saving a model, save_model() adds '.pkl' suffic to the filename supplied to it;
+                # we therefore use '' instead of 'pkl' when computing model_filename
+                # argument model is actually a dict with response names as keys and the correponding
+                # models as values, thus we save/dump multiple models, one for each response:
+                for resp in model:
+                    caret_save_model(model[resp], self.model_filename(algo, "", resp))
+                # pickle.dump(model, open(self.model_filename(algo, '.pkl'), 'wb'))
+            elif model_lib == "keras":
+                # could save the model in two ways; currently saved model in json format is not used
+                if isinstance(model, dict):
                     for resp in model:
-                        caret_save_model(
-                            model[resp], self.model_filename(algo, "", resp)
-                        )
-                    # pickle.dump(model, open(self.model_filename(algo, '.pkl'), 'wb'))
-                elif model_lib == "keras":
-                    # could save the model in two ways; currently saved model in json format is not used
-                    if isinstance(model, dict):
-                        for resp in model:
-                            model[resp].save(self.model_filename(algo, ".h5", resp))
-                    else:
-                        model.save(self.model_filename(algo, ".h5"))
+                        model[resp].save(self.model_filename(algo, ".h5", resp))
                 else:
-                    raise Exception(
-                        "Unsupported lib (package) "
-                        + str(model_lib)
-                        + " in function build_models"
-                    )
+                    model.save(self.model_filename(algo, ".h5"))
+            else:
+                raise Exception(
+                    "Unsupported lib (package) "
+                    + str(model_lib)
+                    + " in function build_models"
+                )
 
         if not X_train is None and not y_train is None:
             self._model_logger.info("PREDICT ON TRAINING DATA")
@@ -787,16 +806,16 @@ class SmlpModels:
                 model, X_test, y_test, resp_names, algo, model_per_response
             )
             # print('(3b)'); print('y\n', y);  print('y_train\n', y_train); print('y_test\n', y_test);
-            self._report_prediction_results(
-                algo,
-                resp_names,
-                y_test,
-                y_test_pred,
-                mm_scaler_resp,
-                plots,
-                pred_plots,
-                "test",
-            )
+            # self._report_prediction_results(
+            #     algo,
+            #     resp_names,
+            #     y_test,
+            #     y_test_pred,
+            #     mm_scaler_resp,
+            #     plots,
+            #     pred_plots,
+            #     "test",
+            # )
 
         if X is not None and y is not None:
             self._model_logger.info("PREDICT ON LABELED DATA")
@@ -816,16 +835,16 @@ class SmlpModels:
             y_pred = self._model_predict(
                 model, X, y, resp_names, algo, model_per_response
             )
-            self._report_prediction_results(
-                algo,
-                resp_names,
-                y,
-                y_pred,
-                mm_scaler_resp,
-                plots,
-                pred_plots,
-                "labeled",
-            )
+            # self._report_prediction_results(
+            #     algo,
+            #     resp_names,
+            #     y,
+            #     y_pred,
+            #     mm_scaler_resp,
+            #     plots,
+            #     pred_plots,
+            #     "labeled",
+            # )
 
         if X_new is not None:
             self._model_logger.info("PREDICT ON NEW DATA")
@@ -834,15 +853,15 @@ class SmlpModels:
                 model, X_new, y_new, resp_names, algo, model_per_response
             )
             # print('y_new\n', y_new, '\ny_new_pred\n', y_new_pred)
-            self._report_prediction_results(
-                algo,
-                resp_names,
-                y_new,
-                y_new_pred,
-                mm_scaler_resp,
-                plots,
-                pred_plots,
-                "new",
-            )
+            # self._report_prediction_results(
+            #     algo,
+            #     resp_names,
+            #     y_new,
+            #     y_new_pred,
+            #     mm_scaler_resp,
+            #     plots,
+            #     pred_plots,
+            #     "new",
+            # )
 
         return model

@@ -149,24 +149,25 @@ def evaluate_model(
     log_scale=False,
 ):
     ## Evaluate on training data
-    plot_true_pred_runtime(
-        y_train,
-        model.predict(X_train),
-        interactive,
-        model_name + "_train",
-        out_prefix=out_prefix,
-        log_scale=log_scale,
-    )
+    # plot_true_pred_runtime(
+    #     y_train,
+    #     # model.predict(X_train),
+    #     interactive,
+    #     model_name + "_train",
+    #     out_prefix=out_prefix,
+    #     log_scale=log_scale,
+    # )
 
     ## Evaluate on test data
-    plot_true_pred_runtime(
-        y_test,
-        model.predict(X_test),
-        interactive,
-        model_name + "_test",
-        out_prefix=out_prefix,
-        log_scale=log_scale,
-    )
+    # plot_true_pred_runtime(
+    #     y_test,
+    #     # model.predict(X_test),
+    #     interactive,
+    #     model_name + "_test",
+    #     out_prefix=out_prefix,
+    #     log_scale=log_scale,
+    # )
+    pass
 
 
 # plot error between response resp and its prediction pred.

@@ -90,7 +90,7 @@ works-base-resp dim wg pr:
 
 works-base dim:
     ./src/run_smlp.py -data "regr_smlp/data/smlp_toy_basic" -out_dir ./project \
-    -pref Test113 -mode predict -resp y1 -feat y2,x1,x2,p1,p2 -model nn_keras \
+    -pref Test113 -mode predict -resp y1,y2 -feat x1,x2,p1,p2 -model nn_keras \
     -save_model_config t -mrmr_pred 0 -plots f -pred_plots f -resp_plots f -seed 10 -split 0.5 -save_model t \
     -log_time f -nn_keras_epochs 20 -nn_keras_seq_api f -new_dat "regr_smlp/data/smlp_toy_basic" \
     -dr -dra {{dim}}
@@ -102,12 +102,19 @@ works-base-l dim:
     -log_time f -nn_keras_epochs 1 -nn_keras_seq_api f -new_dat "bench/intel/data/s2_rx_anonym.csv" \
     -dr -dra {{dim}}
 
+works-base-bow dim wg ra:
+    ./src/run_smlp.py -data "bench/intel/data/read_bowtie_anonym.csv" -out_dir ./project \
+    -pref Test113 -mode predict -model nn_keras -resp o0,o1,o2,o3 \
+    -save_model_config t -mrmr_pred 0 -plots f -pred_plots f -resp_plots f -seed 10 -save_model t \
+    -log_time f -nn_keras_epochs 10 -nn_keras_seq_api f -new_dat "bench/intel/data/read_bowtie_anonym.csv" \
+    -dr -dra {{dim}} -wg {{wg}} -ra {{ra}} -split 0.5 \
+    -feat p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15 \
 optimize-l:
     uv run ./src/run_smlp.py -out_dir ./project -pref Test113 \
-    -mode optimize -pareto t -use_model t -resp o0,o1 -save_model f \
-     -mrmr_pred 0 -plots f -seed 10 -model_name Test113_s2_rx_anonym \
-    -log_time f -model nn_keras -nn_keras_weights_precision 2 \
-    -spec bench/intel/specs/s2_rx_anonym.spec
+    -mode optimize -pareto t -use_model t -resp o0,o1,o2,o3 -save_model f \
+     -mrmr_pred 0 -plots f -seed 10 -model_name Test113_read_bowtie_anonym \
+    -log_time f -model nn_keras \
+    -spec bench/intel/specs/read_bowtie_anonym.spec
 
 opt-model round wg dr:
     uv run ./project/adjust.py {{round}} {{wg}} {{dr}}

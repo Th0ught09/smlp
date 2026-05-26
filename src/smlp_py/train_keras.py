@@ -1511,42 +1511,14 @@ class ModelKeras:
                         f"  Dropping weights for response: {resp_name}"
                     )
                     self.drop_weights(resp_model, weights_drop)
-            else:
+                # else:
                 # Single model for all responses
                 self.drop_weights(model, weights_drop)
-        else:
-            with open("project/plot_data.tsv", "a") as f:
-                f.write("\n")
+            # with open("project/plot_data.tsv", "a") as f:
+            #     f.write("\n")
         return model
 
     def drop_weights(self, model, drop_percentage: int):
-        """
-        Drop (set to zero) the smallest magnitude weights from the trained neural network model.
-
-        Args:
-            model: Keras model to prune
-            drop_percentage: Percentage (0-100) of weights to drop based on magnitude
-
-        This implementation uses magnitude-based pruning, where weights are ranked by their
-        absolute values and the smallest ones are set to zero. This is useful for:
-        - Model compression
-        - Reducing model complexity
-        - Improving generalization
-        - Creating sparse models
-        """
-        if drop_percentage < 0 or drop_percentage > 100:
-            self._keras_logger.warning(
-                f"Invalid drop_percentage {drop_percentage}. Must be between 0-100. Skipping weight dropping."
-            )
-            return
-
-        if drop_percentage == 0:
-            self._keras_logger.info(
-                "drop_weights: drop_percentage is 0, no weights will be dropped"
-            )
-            return
-
-        # Collect all weights from all layers
         all_weights = []
         layer_weight_shapes = []  # Track which weights belong to which layer
 

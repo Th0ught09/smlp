@@ -1051,8 +1051,9 @@ class SmlpQuery:
                 ):  # isinstance(ce, smlp.unsat):
                     smlp_processing_time = perf_counter() - smlp_processing_start
                     with open("project/plot_data.tsv", "a") as f:
-                        f.write(f"{smlp_processing_time:8.5f},")
+                        f.write(f"{smlp_processing_time:8.5f}\n")
                     print("candidate stable -- return candidate")
+                    exit()
                     self._query_logger.info(
                         "Query completed with result: STABLE_SAT (satisfiable)"
                     )

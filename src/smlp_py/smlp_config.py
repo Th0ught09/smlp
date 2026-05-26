@@ -177,7 +177,6 @@ class SmlpConfig:
         # print('argv', argv)
         parser = argparse.ArgumentParser(prog=argv[0])
         # print('parser', parser)
-
         for p, v in args_dict.items():
             # print('p', p, 'v', v); print('type', v['type'])
             if "default" in v:
@@ -198,6 +197,7 @@ class SmlpConfig:
             "-dra", "--dimension-reduction-amount", type=int, default=0.95
         )
         parser.add_argument("-wg", "--weights-drop", type=int, default=0)
+        parser.add_argument("-ra", "--round", type=int, default=3)
         args = parser.parse_args(argv[1:])
 
         # support for loading parameters from configuration file

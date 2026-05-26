@@ -535,6 +535,8 @@ class SmlpFlows:
                 args.use_model,
                 args.dimension_reduction,
                 args.dimension_reduction_amount,
+                args.weights_drop,
+                args.round,
             )
 
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
@@ -576,6 +578,7 @@ class SmlpFlows:
                     args.model_per_response,
                     self.configInst.model_rerun_config,
                     args.weights_drop,
+                    args.round,
                 )
                 profiler.disable()
                 stats = pstats.Stats(profiler)
@@ -605,6 +608,12 @@ class SmlpFlows:
             # sanity check that the order of features in model_features_dict, feat_names, X_train, X_test, X is
             # the same; this is mostly important for model exploration modes
             # self.modelInst.model_features_sanity_check(
+            #     model_features_dict, feat_names, X_train, X_test, X
+            # )
+
+            # if args.analytics_mode == "verify":
+
+            # if args.analytics_mode == "verify":
             #     model_features_dict, feat_names, X_train, X_test, X
             # )
 

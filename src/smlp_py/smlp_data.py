@@ -1419,6 +1419,8 @@ class SmlpData:
         use_model: bool,
         dimension_reduction: bool,
         dimension_reduction_amount: int,
+        weights_drop,
+        round,
     ):
         # scale = not self._get_data_scaler(scaler_type) is None
         keep_feat = keep_feat + self._specInst.get_spec_constraint_vars()
@@ -1556,12 +1558,15 @@ class SmlpData:
             pca = PCA()
             pca.fit(X_train)
             cumsum = np.cumsum(pca.explained_variance_ratio_)
-            d = np.argmax(cumsum >= dimension_reduction_amount) + 1
+            d = np.argmax(cumsum >= (dimension_reduction_amount / 100)) + 1
+            print(d, pca.explained_variance_ratio_)
             pca = PCA(n_components=d)
             X_train = pca.fit_transform(X_train)
             X = pca.fit_transform(X)
             X_test = pca.fit_transform(X_test)
             X_new = pca.fit_transform(X_new)
+            with open("project/plot_data.tsv", "a") as f:
+                f.write(f"{dimension_reduction_amount}\t{weights_drop}\t{round}\t")
 
         return (
             X,
